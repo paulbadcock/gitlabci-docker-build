@@ -1,0 +1,37 @@
+variables:
+  VERSION: "1.2.3"
+  NAME_SPACE: "companyx"
+  DOCKER_REGISTRY: "http://registry.companyx.tld:5000"
+
+stages:
+  - build
+  - deploy
+
+build_image:
+  image: docker:1.12
+  type: build
+  script:
+    - docker build --build-arg VERSION=${VERSION} -t ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA} .
+    - docker push ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA}
+
+development:
+  image: docker:1.12
+  type: deploy
+  when: manual
+  environment: development
+  script:
+    - docker pull ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA}
+    - docker tag ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA} ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${VERSION}
+    - docker push ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${VERSION}
+
+production:
+  image: docker:1.12
+  type: deploy
+  when: manual
+  environment: production
+  script:
+    - docker pull ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${VERSION}
+    - docker tag ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${VERSION} ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:latest
+    - docker push ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:latest
+  only:
+    - master
