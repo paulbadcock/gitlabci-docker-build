@@ -1,5 +1,5 @@
 variables:
-  VERSION: "1.2.3"
+  VERSION: "2.0.0.648"
   NAME_SPACE: "companyx"
   DOCKER_REGISTRY: "http://registry.companyx.tld:5000"
 
