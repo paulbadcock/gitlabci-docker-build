@@ -7,4 +7,4 @@ ARG VERSION
 RUN yum install -y ruby-${VERSION} && \
     yum clean all
 
-CMD /
+CMD /bin/ruby -v
