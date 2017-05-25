@@ -5,28 +5,30 @@ variables:
 
 stages:
   - build
-  - deploy
+  - stage
+  - release
 
-build_image:
+Build Docker Image:
   image: docker:1.12
   type: build
+  environment: qa
   script:
     - docker build --build-arg VERSION=${VERSION} -t ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA} .
     - docker push ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA}
 
-development:
+Tag Version:
   image: docker:1.12
-  type: deploy
+  type: stage
   when: manual
-  environment: development
+  environment: release
   script:
     - docker pull ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA}
     - docker tag ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${CI_COMMIT_SHA} ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${VERSION}
     - docker push ${DOCKER_REGISTRY}/${NAME_SPACE}/${CI_PROJECT_NAME}:${VERSION}
 
-production:
+Tag Latest:
   image: docker:1.12
-  type: deploy
+  type: release
   when: manual
   environment: production
   script:
